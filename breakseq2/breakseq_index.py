@@ -15,7 +15,7 @@ def add_options(main_parser):
 
 
 def get_seq(sv, sv_type, seq):
-    print ">%s:%s:%s\n%s" % (sv.id, sv.size(), sv_type, seq)
+    return ">%s:%s:%s\n%s" % (sv.id, sv.size(), sv_type, seq)
 
 
 def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH):
@@ -28,7 +28,7 @@ def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENG
             outfd.write("%s\n" % (get_seq(sv, "A", flanks[0])))
             outfd.write("%s\n" % (get_seq(sv, "B", flanks[1])))
         if sv.is_deletion():
-            outfd.write("%s\n" % (print_seq(sv, "C", flanks[2])))
+            outfd.write("%s\n" % (get_seq(sv, "C", flanks[2])))
     outfd.close()
 
 if __name__ == "__main__":
