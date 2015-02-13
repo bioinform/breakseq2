@@ -68,7 +68,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         index_cmd = "{bwa} index {bplib}".format(bwa=bwa, bplib=bplib)
         func_logger.info("Indexing {bplib} using {index_cmd}".format(bplib=bplib, index_cmd=index_cmd))
         with open(os.path.join(work, "index.log"), "w") as index_log_fd:
-            subprocess.check_call(index_cmd, stderr=index_log_fd)
+            subprocess.check_call(index_cmd, shell=True, stderr=index_log_fd)
 
     aligned_bams = preprocess_and_align.parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes,
                                                                       nthreads, keep_temp)
