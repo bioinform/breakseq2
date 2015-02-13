@@ -9,7 +9,7 @@ print version
 setup(
       name='BreakSeq2',
       version=version,
-      description='BreakSeq2: An accurate and fast structural-variant caller using junction-mapping',
+      description='BreakSeq2: Ultrafast and accurate nucleotide-resolution analysis of structural variants',
       author='Bina Technologies',
       author_email='rd@bina.com',
       url='https://github.com/bioinform/breakseq2',
