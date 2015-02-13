@@ -44,7 +44,7 @@ def breakseq2_workflow(sample=None, bplib=None, bwa=None, samtools=None, bams=[]
                        min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW):
     func_logger = logging.getLogger(breakseq2_workflow.__name__)
 
-    bams = [os.path.abspath(bam) for bam in args.bams]
+    bams = [os.path.abspath(bam) for bam in bams]
 
     if not bams:
         func_logger.error("No BAMs specified so nothing to do")
