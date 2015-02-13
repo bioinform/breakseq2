@@ -10,7 +10,7 @@ DEFAULT_JUNCTION_LENGTH = 200
 
 def add_options(main_parser):
     local_parser = main_parser.add_argument_group("Breakpoint library FASTA generation options")
-    local_parser.add_argument("--bplib_gff", help="Breakpoint GFF input", required=True)
+    local_parser.add_argument("--bplib_gff", help="Breakpoint GFF input", required=False)
     local_parser.add_argument("--junction_length", help="Junction length", type=int, default=DEFAULT_JUNCTION_LENGTH)
 
 
