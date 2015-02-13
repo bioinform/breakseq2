@@ -19,6 +19,7 @@ def add_options(main_parser):
     breakseq_post.add_options(main_parser)
     compute_zygosity.add_options(main_parser)
     gen_vcf.add_options(main_parser)
+    breakseq_index.add_options(main_parser)
 
     main_parser.add_argument("--nthreads", help="Number of processes to use for parallelism", type=int, default=1)
     main_parser.add_argument("--bams", help="Alignment BAMs", nargs="+", required=True, default=[])
