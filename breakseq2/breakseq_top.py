@@ -2,12 +2,14 @@
 
 import logging
 import os
+import subprocess
 import pysam
 import preprocess_and_align
 import breakseq_core
 import breakseq_post
 import compute_zygosity
 import gen_vcf
+import breakseq_index
 from _version import __version__
 
 
@@ -39,9 +41,9 @@ def infer_sample(bam):
     return samples[0]
 
 
-def breakseq2_workflow(sample=None, bplib=None, bwa=None, samtools=None, bams=[], work="work", chromosomes=[],
+def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtools=None, bams=[], work="work", chromosomes=[],
                        nthreads=1, min_span=breakseq_core.DEFAULT_MIN_SPAN,
-                       min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW):
+                       min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW, junction_length=breakseq_index.DEFAULT_JUNCTION_LENGTH):
     func_logger = logging.getLogger(breakseq2_workflow.__name__)
 
     bams = [os.path.abspath(bam) for bam in bams]
@@ -56,6 +58,16 @@ def breakseq2_workflow(sample=None, bplib=None, bwa=None, samtools=None, bams=[]
     if not os.path.isdir(work):
         func_logger.info("Created working directory %s" % work)
         os.makedirs(work)
+
+    if bplib_gff:
+        bplib = os.path.join(work, "bplib.fa")
+        func_logger.info("Generating breakpoint-library using %s" % bplib_gff)
+        breakseq_index.generate_bplib(bplib_gff, reference, bplib, junction_length)
+        # Index the bplib
+        index_cmd = "{bwa} index {bplib}".format(bwa=bwa, bplib=bplib)
+        func_logger.info("Indexing {bplib} using {index_cmd}".format(bplib=bplib, index_cmd=index_cmd))
+        with open(os.path.join(work, "index.log"), "w") as index_log_fd:
+            subprocess.check_call(index_cmd, stderr=index_log_fd)
 
     aligned_bams = preprocess_and_align.parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes,
                                                                       nthreads, keep_temp)

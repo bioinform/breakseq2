@@ -16,7 +16,7 @@ if __name__ == '__main__':
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
-    breakseq_top.breakseq2_workflow(args.sample, os.path.realpath(args.bplib), os.path.realpath(args.bwa),
+    breakseq_top.breakseq2_workflow(args.sample, args.bplib, args.bplib_gff, os.path.realpath(args.bwa),
                                     os.path.realpath(args.samtools), args.bams, os.path.realpath(args.work),
                                     args.chromosomes,
                                     args.nthreads, args.min_span, args.min_overlap, os.path.realpath(args.reference),
