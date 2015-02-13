@@ -3,7 +3,7 @@
 import argparse
 import logging
 import os
-from breakseq2 import breakseq_top
+from run_breakseq2 import breakseq_top
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="BreakSeq2: A fast and accurate SV-caller using junction-mapping",
