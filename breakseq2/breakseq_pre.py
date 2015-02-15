@@ -64,6 +64,22 @@ def is_good_candidate(aln, min_soft_clip, min_soft_clip_mapq, min_soft_clip_mate
     return False
 
 
+def get_iterator(bam_handle, chromosome):
+    if chromosome is None:
+        return bam_handle
+    if chromosome:
+        return bam_handle.fetch(chromosome)
+    bam_header = bam_handle.header
+    for bam_chr_dict in bam_header['SQ'][::-1]:
+        chr_name = bam_chr_dict['SQ']
+        chr_length = bam_chr_dict['LN']
+        if bam_handle.count(chr_name) > 0:
+            bam_handle.fetch(chr_name)
+            return bam_handle
+    bam_handle.reset()
+    return bam_handle
+
+
 def print_candidate_reads(bams, chromosome, min_soft_clip=DEFAULT_MIN_SOFT_CLIP, min_soft_clip_mapq=DEFAULT_MIN_SOFT_CLIP_MAPQ, min_soft_clip_mate_mapq=DEFAULT_MIN_SOFT_CLIP_MATE_MAPQ, bad_map_max_soft_clip=DEFAULT_BAD_MAP_MAX_SOFT_CLIP,
                           bad_map_min_mapq=DEFAULT_BAD_MAP_MIN_MAPQ, bad_map_min_nm=DEFAULT_BAD_MAP_MIN_NM, bad_map_min_mate_mapq=DEFAULT_BAD_MAP_MIN_MATE_MAPQ, outfile=None):
     func_logger = logging.getLogger("%s-%s" % (print_candidate_reads.__name__, multiprocessing.current_process()))
@@ -72,7 +88,7 @@ def print_candidate_reads(bams, chromosome, min_soft_clip=DEFAULT_MIN_SOFT_CLIP,
     readcount = 0
     for input_file in bams:
         sam_file = pysam.Samfile(input_file, "r" + ("" if input_file.endswith("sam") else "b"))
-        iterator = sam_file.fetch(chromosome) if chromosome else sam_file
+        iterator = get_iterator(sam_file, chromosome)
         for aln in iterator:
             if not is_good_candidate(aln, min_soft_clip, min_soft_clip_mapq, min_soft_clip_mate_mapq,
                                      bad_map_max_soft_clip, bad_map_min_mapq, bad_map_min_nm,
