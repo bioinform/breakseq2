@@ -60,6 +60,7 @@ def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=
         os.makedirs(work)
 
     if not chromosomes: chromosomes = [None]
+    else: chromosomes.append("") # Special contig for unmapped reads
 
     pool = multiprocessing.Pool(nthreads)
     count = 0
