@@ -42,6 +42,14 @@ def infer_sample(bam):
     return samples[0]
 
 
+def get_reference_contigs(reference):
+    fai = os.path.join(reference, ".fai")
+    contigs = []
+    with open(fai, "w") as fai_fd:
+        contigs = [line.split()[0] for line in fai_fd]
+    return contigs
+
+
 def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtools=None, bams=[], work="work", chromosomes=[],
                        nthreads=1, min_span=breakseq_core.DEFAULT_MIN_SPAN,
                        min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW, junction_length=breakseq_index.DEFAULT_JUNCTION_LENGTH):
@@ -74,6 +82,9 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         func_logger.info("Indexing {bplib} using {index_cmd}".format(bplib=bplib, index_cmd=index_cmd))
         with open(os.path.join(work, "index.log"), "w") as index_log_fd:
             subprocess.check_call(index_cmd, shell=True, stderr=index_log_fd)
+
+    if not chromosomes:
+        chromosomes = get_reference_contigs(reference)
 
     aligned_bams = preprocess_and_align.parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes,
                                                                       nthreads, keep_temp)
