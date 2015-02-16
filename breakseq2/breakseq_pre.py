@@ -73,7 +73,7 @@ def get_iterator(bam_handle, chromosome):
     # Get the iterator for the reads with no coordinates
     bam_header = bam_handle.header
     for bam_chr_dict in bam_header['SQ'][::-1]:
-        chr_name = bam_chr_dict['SQ']
+        chr_name = bam_chr_dict['SN']
         chr_length = bam_chr_dict['LN']
         if bam_handle.count(chr_name) > 0:
             bam_handle.fetch(chr_name)
