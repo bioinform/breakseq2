@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import sys
 from breakseq2 import breakseq_top
 
 if __name__ == '__main__':
@@ -16,8 +17,9 @@ if __name__ == '__main__':
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
-    breakseq_top.breakseq2_workflow(args.sample, os.path.realpath(args.bplib), os.path.realpath(args.bwa),
-                                    os.path.realpath(args.samtools), args.bams, os.path.realpath(args.work),
-                                    args.chromosomes,
-                                    args.nthreads, args.min_span, args.min_overlap, os.path.realpath(args.reference),
-                                    args.keep_temp, args.window)
+    sys.exit(breakseq_top.breakseq2_workflow(args.sample, args.bplib, args.bplib_gff, os.path.realpath(args.bwa),
+                                             os.path.realpath(args.samtools), args.bams, os.path.realpath(args.work),
+                                             args.chromosomes,
+                                             args.nthreads, args.min_span, args.min_overlap,
+                                             os.path.realpath(args.reference),
+                                             args.keep_temp, args.window))

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import sys, os
-from biopy.io import Fasta
-from biopy.io import GFF
+import Fasta
+import GFF
 
 class Call(GFF.Entry):
 

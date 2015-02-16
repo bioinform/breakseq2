@@ -13,7 +13,7 @@ import shutil
 
 def add_options(main_parser):
     local_parser = main_parser.add_argument_group("Read alignment options")
-    local_parser.add_argument("--bplib", help="Breakpoint library FASTA", required=True)
+    local_parser.add_argument("--bplib", help="Breakpoint library FASTA", required=False)
     local_parser.add_argument("--bwa", help="Path to BWA executable", required=True)
     local_parser.add_argument("--samtools", help="Path to SAMtools executable", required=True)
 
@@ -60,6 +60,7 @@ def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=
         os.makedirs(work)
 
     if not chromosomes: chromosomes = [None]
+    else: chromosomes.append("") # Special contig for unmapped reads
 
     pool = multiprocessing.Pool(nthreads)
     count = 0
