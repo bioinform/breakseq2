@@ -7,9 +7,8 @@ import sys
 from breakseq2 import breakseq_top
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description="BreakSeq2: Ultrafast and accurate nucleotide-resolution analysis of structural variants",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description="BreakSeq2: Ultrafast and accurate nucleotide-resolution analysis of structural variants",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     breakseq_top.add_options(parser)
 
