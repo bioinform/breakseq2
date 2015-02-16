@@ -47,7 +47,7 @@ def get_reference_contigs(reference):
     fai = "%s.fai" % reference
     contigs = []
     func_logger.info("Extracting chromosome names from %s" % fai)
-    with open(fai, "w") as fai_fd:
+    with open(fai) as fai_fd:
         contigs = [line.split()[0] for line in fai_fd]
     return contigs
 
