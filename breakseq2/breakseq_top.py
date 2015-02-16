@@ -44,7 +44,7 @@ def infer_sample(bam):
 
 def get_reference_contigs(reference):
     func_logger = logging.getLogger(get_reference_contigs.__name__)
-    fai = os.path.join(reference, ".fai")
+    fai = "%s.fai" % reference
     contigs = []
     func_logger.info("Extracting chromosome names from %s" % fai)
     with open(fai, "w") as fai_fd:
