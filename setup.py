@@ -14,7 +14,7 @@ setup(
       author_email='rd@bina.com',
       url='https://github.com/bioinform/breakseq2',
       packages = find_packages(),
-      install_requires = ["cython", "pysam==0.7.7"],
+      install_requires = ["cython", "pysam==0.7.7", "biopython==1.65"],
       scripts=['scripts/run_breakseq2.py'],
       dependency_links = ["https://pypi.python.org/packages/source/p/pysam/pysam-0.7.7.tar.gz"]
       )
