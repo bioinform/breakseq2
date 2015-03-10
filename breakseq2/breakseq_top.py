@@ -60,7 +60,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
 
     if not bams:
         func_logger.error("No BAMs specified so nothing to do")
-        return 1
+        return os.EX_NOINPUT
 
     if not sample:
         sample = infer_sample(bams[0])
@@ -71,7 +71,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
 
     if not bplib and not bplib_gff:
         func_logger.error("Atleast one of the breakpoint FASTA or GFF must be specified")
-        return 1
+        return os.EX_USAGE
 
     if bplib_gff:
         # Generate bplib using the GFF file and use this for the main run
@@ -92,7 +92,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
 
     if not aligned_bams:
         func_logger.warn("Read-extraction and alignment generated nothing")
-        return 0
+        return os.EX_OK
 
     breakseq_core.breakseq_core(aligned_bams, "%s/breakseq.out" % work, min_span=min_span)
     breakseq_post.generate_final_gff(["%s/breakseq.out" % work], "%s/breakseq.gff" % work)
@@ -100,4 +100,4 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
                                       min_overlap)
     gen_vcf.gff_to_vcf(reference, "%s/breakseq_genotyped.gff" % work, sample, "%s/breakseq.vcf" % work)
 
-    return 0
+    return os.EX_OK
