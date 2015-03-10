@@ -42,7 +42,7 @@ def add_options(main_parser):
 
 def is_good_candidate(aln, min_soft_clip, min_soft_clip_mapq, min_soft_clip_mate_mapq, bad_map_max_soft_clip,
                       bad_map_min_mapq, bad_map_min_nm, bad_map_min_mate_mapq):
-    if aln.is_duplicate: return False
+    if aln.is_duplicate or aln.is_secondary: return False
     if aln.is_unmapped: return True
     # some tweaking may be required to ensure the reads in a pair are used consistently
     if aln.cigar is None: return False
