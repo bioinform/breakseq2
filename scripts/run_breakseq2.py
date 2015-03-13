@@ -22,4 +22,4 @@ if __name__ == '__main__':
                                              args.chromosomes,
                                              args.nthreads, args.min_span, args.min_overlap,
                                              os.path.realpath(args.reference),
-                                             args.keep_temp, args.window))
+                                             args.keep_temp, args.window, args.junction_length))
