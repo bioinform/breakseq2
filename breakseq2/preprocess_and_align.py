@@ -53,7 +53,7 @@ def preprocess_and_align_callback(result, result_list):
 
 
 # Parallelize over BAMs and chromosomes
-def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=[], nthreads=1, merge=False, keep_temp=False):
+def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=[], nthreads=1, keep_temp=False):
     func_logger = logging.getLogger(parallel_preprocess_and_align.__name__)
 
     if not os.path.isdir(work):
