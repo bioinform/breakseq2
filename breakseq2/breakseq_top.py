@@ -41,6 +41,12 @@ def infer_sample(bam):
     samfile.close()
     return samples[0]
 
+def has_bwa_index(fasta):
+    for suffix in ["amb", "ann", "bwt", "pac", "sa"]:
+        if not os.path.isfile("%s.%s" % (fasta, suffix)):
+            return False
+    return True
+
 
 def get_reference_contigs(reference):
     func_logger = logging.getLogger(get_reference_contigs.__name__)
@@ -78,6 +84,13 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Generating breakpoint-library using %s" % bplib_gff)
         breakseq_index.generate_bplib(bplib_gff, reference, bplib, junction_length)
+    else if not has_bwa_index(bplib):
+        new_bplib = os.path.join(work, "bplib.fa")
+        func_logger.info("Index of %s does not exist. Copying to %s to index" % (bplib, work))
+        shutils.copyfile(bplib, new_bplib)
+        bplib = new_bplib
+
+    if not has_bwa_index(bplib):
         # Index the bplib
         index_cmd = "{bwa} index {bplib}".format(bwa=bwa, bplib=bplib)
         func_logger.info("Indexing {bplib} using {index_cmd}".format(bplib=bplib, index_cmd=index_cmd))
@@ -94,7 +107,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         func_logger.warn("Read-extraction and alignment generated nothing")
         return os.EX_OK
 
-    breakseq_core.breakseq_core(aligned_bams, "%s/breakseq.out" % work, min_span=min_span)
+    breakseq_core.breakseq_core(aligned_bams, "%s/breakseq.out" % work, min_span=min_span, chromosomes=chromosomes)
     breakseq_post.generate_final_gff(["%s/breakseq.out" % work], "%s/breakseq.gff" % work)
     compute_zygosity.compute_zygosity(bams, window, "%s/breakseq.gff" % work, "%s/breakseq_genotyped.gff" % work,
                                       min_overlap)
