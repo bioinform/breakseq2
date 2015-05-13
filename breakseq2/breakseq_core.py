@@ -35,7 +35,7 @@ def to_cigar(c):
     return cigar
 
 
-def breakseq_core(input_files, output, min_span=DEFAULT_MIN_SPAN):
+def breakseq_core(input_files, output, min_span=DEFAULT_MIN_SPAN, chromosomes=[]):
     func_logger = logging.getLogger(breakseq_core.__name__)
 
     outfd = open(output, "w") if output else sys.stdout
@@ -63,6 +63,9 @@ def breakseq_core(input_files, output, min_span=DEFAULT_MIN_SPAN):
                 jchr, jstart, jend, src, sv_type, sv_length, junct = j_fields
 
             ichr = None if aln.qname.find("$") < 0 else aln.qname.split("$")[-1]
+
+            if chromosomes and jchr not in chromosomes:
+                continue
 
             pe = "-"
             if ichr is not None:
