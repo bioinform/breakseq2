@@ -20,6 +20,9 @@ def get_seq(sv, sv_type, seq):
 
 def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH):
     outfd = open(output, "w") if output else sys.stdout
+    insertion_sequence_file = gff.replace(".gff", "") + ".ins";
+    if not os.path.isfile(insertion_sequence_file):
+        raise Exception("Insertion sequence file %s missing" % insertion_sequence_file)
     for sv in SV.parse(gff, Fasta.Seqs(reference, junction_length)):
         flanks = sv.get_flanks()
         if sv.is_insertion():
