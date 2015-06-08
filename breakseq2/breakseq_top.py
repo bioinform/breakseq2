@@ -84,7 +84,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Generating breakpoint-library using %s" % bplib_gff)
         breakseq_index.generate_bplib(bplib_gff, reference, bplib, junction_length)
-    else if not has_bwa_index(bplib):
+    elif not has_bwa_index(bplib):
         new_bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Index of %s does not exist. Copying to %s to index" % (bplib, work))
         shutils.copyfile(bplib, new_bplib)
