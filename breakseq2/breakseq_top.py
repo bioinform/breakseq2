@@ -82,6 +82,15 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         func_logger.error("Atleast one of the breakpoint FASTA or GFF must be specified")
         return os.EX_USAGE
 
+    for fname in [bplib, bplib_gff]:
+        if fname is None: continue
+        if not os.path.isfile(fname):
+            func_logger.error("Breakpoint library %s not a file" % fname)
+            return os.EX_USAGE
+        if os.path.getsize(fname) == 0:
+            func_logger.error("Breakpoint library %s is empty" % fname)
+            return os.EX_USAGE
+
     if bplib_gff:
         # Generate bplib using the GFF file and use this for the main run
         bplib = os.path.join(work, "bplib.fa")
