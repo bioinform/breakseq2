@@ -2,7 +2,9 @@
 
 import logging
 import os
+import time
 import subprocess
+import shutil
 import pysam
 import preprocess_and_align
 import breakseq_core
@@ -41,6 +43,12 @@ def infer_sample(bam):
     samfile.close()
     return samples[0]
 
+def has_bwa_index(fasta):
+    for suffix in ["amb", "ann", "bwt", "pac", "sa"]:
+        if not os.path.isfile("%s.%s" % (fasta, suffix)):
+            return False
+    return True
+
 
 def get_reference_contigs(reference):
     func_logger = logging.getLogger(get_reference_contigs.__name__)
@@ -56,6 +64,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
                        min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW, junction_length=breakseq_index.DEFAULT_JUNCTION_LENGTH):
     func_logger = logging.getLogger(breakseq2_workflow.__name__)
 
+    start_time = time.time()
     bams = [os.path.abspath(bam) for bam in bams]
 
     if not bams:
@@ -73,11 +82,26 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         func_logger.error("Atleast one of the breakpoint FASTA or GFF must be specified")
         return os.EX_USAGE
 
+    for fname in [bplib, bplib_gff]:
+        if fname is None: continue
+        if not os.path.isfile(fname):
+            raise Exception("Breakpoint library %s not a file" % fname)
+        if os.path.getsize(fname) == 0:
+            raise Exception("Breakpoint library %s empty" % fname)
+
     if bplib_gff:
         # Generate bplib using the GFF file and use this for the main run
         bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Generating breakpoint-library using %s" % bplib_gff)
         breakseq_index.generate_bplib(bplib_gff, reference, bplib, junction_length)
+    elif not has_bwa_index(bplib):
+        new_bplib = os.path.join(work, "bplib.fa")
+        func_logger.info("Index of %s does not exist. Copying to %s to index" % (bplib, work))
+        if os.path.realpath(new_bplib) != os.path.realpath(bplib):
+            shutil.copyfile(bplib, new_bplib)
+        bplib = new_bplib
+
+    if not has_bwa_index(bplib):
         # Index the bplib
         index_cmd = "{bwa} index {bplib}".format(bwa=bwa, bplib=bplib)
         func_logger.info("Indexing {bplib} using {index_cmd}".format(bplib=bplib, index_cmd=index_cmd))
@@ -94,10 +118,12 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
         func_logger.warn("Read-extraction and alignment generated nothing")
         return os.EX_OK
 
-    breakseq_core.breakseq_core(aligned_bams, "%s/breakseq.out" % work, min_span=min_span)
+    breakseq_core.breakseq_core(aligned_bams, "%s/breakseq.out" % work, min_span=min_span, chromosomes=chromosomes)
     breakseq_post.generate_final_gff(["%s/breakseq.out" % work], "%s/breakseq.gff" % work)
     compute_zygosity.compute_zygosity(bams, window, "%s/breakseq.gff" % work, "%s/breakseq_genotyped.gff" % work,
                                       min_overlap)
     gen_vcf.gff_to_vcf(reference, "%s/breakseq_genotyped.gff" % work, sample, "%s/breakseq.vcf" % work)
+
+    func_logger.info("Done! (%g s)" % (time.time() - start_time))
 
     return os.EX_OK

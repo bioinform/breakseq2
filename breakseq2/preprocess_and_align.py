@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import time
 import subprocess
 from functools import partial
 from breakseq_pre import print_candidate_reads
@@ -32,7 +33,9 @@ def preprocess_and_align(bplib=None, bwa=None, samtools=None, bam=None, prefix=N
             bash_cmd = "bash -c \"{bwa} samse {bplib} <({bwa} aln {bplib} {outfq}) {outfq} | {samtools} view -S - -1 -F 4 -bo {outbam}\"".format(bwa=bwa, bplib=bplib, samtools=samtools, outfq=outfq, outbam=outbam)
             func_logger.info("Running %s" % bash_cmd)
             with open(outlog, "w") as logfd:
+                start_time = time.time()
                 subprocess.check_call(bash_cmd, shell=True, stderr=logfd)
+                func_logger.info("Finished %s (%g s)" % (bash_cmd, time.time() - start_time))
         else:
             func_logger.info("No reads extracted from {bam} so no alignment will be done".format(bam=bam))
     except Exception as e:
@@ -55,6 +58,7 @@ def preprocess_and_align_callback(result, result_list):
 # Parallelize over BAMs and chromosomes
 def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=[], nthreads=1, keep_temp=False):
     func_logger = logging.getLogger(parallel_preprocess_and_align.__name__)
+    start_time = time.time()
 
     if not os.path.isdir(work):
         os.makedirs(work)
@@ -91,6 +95,7 @@ def parallel_preprocess_and_align(bplib, bwa, samtools, bams, work, chromosomes=
         for bam in aligned_bams:
             os.remove(bam)
 
+    func_logger.info("Finished parallel preprocess and align (%g s)." % (time.time() - start_time))
     return [finalbam]
 
 
