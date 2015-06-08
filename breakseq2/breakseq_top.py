@@ -85,11 +85,9 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
     for fname in [bplib, bplib_gff]:
         if fname is None: continue
         if not os.path.isfile(fname):
-            func_logger.error("Breakpoint library %s not a file" % fname)
-            return os.EX_USAGE
+            raise Exception("Breakpoint library %s not a file" % fname)
         if os.path.getsize(fname) == 0:
-            func_logger.error("Breakpoint library %s is empty" % fname)
-            return os.EX_USAGE
+            raise Exception("Breakpoint library %s empty" % fname)
 
     if bplib_gff:
         # Generate bplib using the GFF file and use this for the main run
