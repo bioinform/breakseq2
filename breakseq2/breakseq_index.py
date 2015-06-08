@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import os
 from biopy.io import Fasta
 from biopy.io import SV
 
