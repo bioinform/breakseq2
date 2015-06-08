@@ -107,7 +107,7 @@ def print_candidate_reads(bams, chromosome, min_soft_clip=DEFAULT_MIN_SOFT_CLIP,
     if outfile is not None:
         outfd.close()
 
-    func_logger.info("Extracted %d reads from BAMs %s for chromosome %s (%g s)" % (readcount, ", ".join(map(str, bams))), str(chromosome), time.time() - start_time)
+    func_logger.info("Extracted %d reads from BAMs %s for chromosome %s (%g s)" % (readcount, ", ".join(map(str, bams)), str(chromosome), time.time() - start_time))
     return readcount
 
 if __name__ == "__main__":
