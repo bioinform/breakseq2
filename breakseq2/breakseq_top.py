@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import subprocess
+import shutils
 import pysam
 import preprocess_and_align
 import breakseq_core
@@ -89,7 +90,8 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
     elif not has_bwa_index(bplib):
         new_bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Index of %s does not exist. Copying to %s to index" % (bplib, work))
-        shutils.copyfile(bplib, new_bplib)
+        if new_bplib != bplib:
+            shutils.copyfile(bplib, new_bplib)
         bplib = new_bplib
 
     if not has_bwa_index(bplib):
