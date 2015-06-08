@@ -90,7 +90,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
     elif not has_bwa_index(bplib):
         new_bplib = os.path.join(work, "bplib.fa")
         func_logger.info("Index of %s does not exist. Copying to %s to index" % (bplib, work))
-        if new_bplib != bplib:
+        if os.path.realpath(new_bplib) != os.path.realpath(bplib):
             shutil.copyfile(bplib, new_bplib)
         bplib = new_bplib
 
