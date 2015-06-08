@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 import subprocess
 import pysam
 import preprocess_and_align
@@ -62,6 +63,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
                        min_overlap=compute_zygosity.DEFAULT_MIN_OVERLAP, reference=None, keep_temp=False, window=compute_zygosity.DEFAULT_WINDOW, junction_length=breakseq_index.DEFAULT_JUNCTION_LENGTH):
     func_logger = logging.getLogger(breakseq2_workflow.__name__)
 
+    start_time = time.time()
     bams = [os.path.abspath(bam) for bam in bams]
 
     if not bams:
@@ -112,5 +114,7 @@ def breakseq2_workflow(sample=None, bplib=None, bplib_gff=None, bwa=None, samtoo
     compute_zygosity.compute_zygosity(bams, window, "%s/breakseq.gff" % work, "%s/breakseq_genotyped.gff" % work,
                                       min_overlap)
     gen_vcf.gff_to_vcf(reference, "%s/breakseq_genotyped.gff" % work, sample, "%s/breakseq.vcf" % work)
+
+    func_logger.info("Done! (%g s)" % (time.time() - start_time))
 
     return os.EX_OK
