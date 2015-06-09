@@ -17,9 +17,12 @@ if __name__ == '__main__':
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
+    logger = logging.getLogger(__file__)
+    logger.info("Command-line: " + " ".join(sys.argv))
+
     sys.exit(breakseq_top.breakseq2_workflow(args.sample, args.bplib, args.bplib_gff, os.path.realpath(args.bwa),
                                              os.path.realpath(args.samtools), args.bams, os.path.realpath(args.work),
                                              args.chromosomes,
                                              args.nthreads, args.min_span, args.min_overlap,
                                              os.path.realpath(args.reference),
-                                             args.keep_temp, args.window))
+                                             args.keep_temp, args.window, args.junction_length))

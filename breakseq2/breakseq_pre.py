@@ -3,6 +3,7 @@
 import pysam
 import argparse
 import sys
+import time
 import logging
 import multiprocessing
 
@@ -85,6 +86,7 @@ def get_iterator(bam_handle, chromosome):
 def print_candidate_reads(bams, chromosome, min_soft_clip=DEFAULT_MIN_SOFT_CLIP, min_soft_clip_mapq=DEFAULT_MIN_SOFT_CLIP_MAPQ, min_soft_clip_mate_mapq=DEFAULT_MIN_SOFT_CLIP_MATE_MAPQ, bad_map_max_soft_clip=DEFAULT_BAD_MAP_MAX_SOFT_CLIP,
                           bad_map_min_mapq=DEFAULT_BAD_MAP_MIN_MAPQ, bad_map_min_nm=DEFAULT_BAD_MAP_MIN_NM, bad_map_min_mate_mapq=DEFAULT_BAD_MAP_MIN_MATE_MAPQ, outfile=None):
     func_logger = logging.getLogger("%s-%s" % (print_candidate_reads.__name__, multiprocessing.current_process()))
+    start_time = time.time()
 
     outfd = sys.stdout if outfile is None else open(outfile, "w")
     readcount = 0
@@ -105,7 +107,7 @@ def print_candidate_reads(bams, chromosome, min_soft_clip=DEFAULT_MIN_SOFT_CLIP,
     if outfile is not None:
         outfd.close()
 
-    func_logger.info("Extracted %d reads from BAMs %s" % (readcount, ", ".join(map(str, bams))))
+    func_logger.info("Extracted %d reads from BAMs %s for chromosome %s (%g s)" % (readcount, ", ".join(map(str, bams)), str(chromosome), time.time() - start_time))
     return readcount
 
 if __name__ == "__main__":
