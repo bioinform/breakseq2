@@ -149,7 +149,29 @@ of BreakSeq2 is 2.1-alpha. In general, the install source would be https://githu
 
 <h2>Running BreakSeq2</h2>
 
-<p>Type <code>run_breakseq2.py -h</code> for help.</p>
+<p>The following is the list of required options for BreakSeq2</p>
+<ul>
+    <li><code>--samtools path</code>: Path to samtools executable.</li>
+    <li><code>--bwa path</code>: Path to BWA executable.</li>
+    <li>Breakpoint library either as FASTA or GFF formats. The most up-to-date breakpoint library can be found <a href="http://sv.gersteinlab.org/phase1bkpts/breakseq2_bplib_20150129.zip" onlick="trackOutboundLink('http://sv.gersteinlab.org/phase1bkpts/breakseq2_bplib_20150129.zip'); return false;">here</a>. When the library is in GFF format, a corresponding insertion sequence file must also be present with the suffix .ins.</li>
+    <li><code>--bams bam1 bam2 ...</code>: BAMs containing read alignments.</li>
+    <li><code>--reference path</code>: Reference genome in FASTA format.</li>
+</ul>
+
+<p>Below are some examples of running BreakSeq2</p>
+
+<h3>Running with breakpoint library as GFF</h3>
+
+<p><code>run_breakseq2.py --reference b37.fasta --bams bwamem.bam --work work --bwa bwa-0.7.12/bwa --samtools samtools-0.1.19/samtools --bplib_gff bplib.gff --nthreads 4 --sample NA12878</code></p>
+<p>Note that the sample name is not a required option. If it is missing, then the unique sample name is inferred from the BAMs. If there is no unique sample name and none is specified on the command-line, BreakSeq2 will fail. In the above example, since the breakpoint library was specified as a GFF, the insertion sequence file bplib.ins must also be present. BreakSeq2 will use the directory <code>work</code> for all the intermediate as well as the final output. Internally, BreakSeq2 uses the breakpoint
+library in FASTA format, so the conversion from GFF to FASTA is done before the actual processing. BreakSeq2 uses parallelism whenever possible for best performance-in this case, 4 threads will be used for some steps of the processing.</p>
+
+<h3>Running with breakpoint library as FASTA</h3>
+
+<p><code>run_breakseq2.py --reference b37.fasta --bams bwamem.bam --work work --bwa bwa-0.7.12/bwa --samtools samtools-0.1.19/samtools --bplib bplib.fa --nthreads 4</code></p>
+<p>Note that since the breakpoint library was specified as a FASTA file, bplib.ins is not required here since the insertion sequences are already accounted for in the FASTA.</p>
+
+<p>In general, type <code>run_breakseq2.py -h</code> for a list of all command-line options.</p>
 
 
     </div>
