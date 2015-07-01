@@ -30,19 +30,9 @@ def line_to_tuple(line):
     line = line.strip()
     line_items = line.split("\t")
     info_items = line_items[8].split(";")
-    qual = "."
-    gt = "./."
-    svlen = 0
-    for info_item in info_items:
-        key, value = info_item.split(" ")
-        if key == "QUAL":
-            qual = value
-        elif key == "GT":
-            gt = value
-        elif key == "SVLEN":
-            svlen = int(value)
+    info_dict = dict([info_item.split(" ") for info_item in info_items])
 
-    return tuple(line_items[0:3]) + (int(line_items[3]), int(line_items[4])) + (qual, gt, svlen)
+    return tuple(line_items[0:3]) + (int(line_items[3]), int(line_items[4])) + (info_dict,)
 
 
 def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compress=True):
@@ -75,6 +65,9 @@ def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compres
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
 ##FILTER=<ID=LowQual,Description=\"Low Quality\">
 %s##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
+##FORMAT=<ID=ABC,Number=.,Type=Integer,Description=\"Counts of different junction types (A=left insertion, B=right insertion, C=deletion)\">
+##FORMAT=<ID=PE,Number=1,Type=Integer,Description=\"Paired-end read support for SV\">
+##FORMAT=<ID=REFCOUNTS,Number=.,Type=Integer,Description=\"Reads supporting reference allele\">
 ##ALT=<ID=DEL,Description=\"Deletion\">
 ##ALT=<ID=DEL:ME:ALU,Description=\"Deletion of ALU element\">
 ##ALT=<ID=DEL:ME:L1,Description=\"Deletion of L1 element\">
@@ -87,7 +80,14 @@ def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compres
 ##ALT=<ID=CNV,Description=\"Copy number variable region\">
 #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n""" % (reference, contig_str, sample))
     for line_items in lines:
-        chromosome, tool, sv_type, start, end, qual, gt, svlen = line_items
+        chromosome, tool, sv_type, start, end, info_dict = line_items
+        qual = info_dict["QUAL"] if "QUAL" in info_dict else "."
+        svlen = int(info_dict["SVLEN"]) if "SVLEN" in info_dict else 0
+        gt = info_dict["GT"] if "GT" in info_dict else "./."
+        abc = info_dict["ABC"] if "ABC" in info_dict else "0,0,0"
+        pe = info_dict["PE"] if "PE" in info_dict else "0"
+        refcounts = info_dict["COUNTS"] if "COUNTS" in info_dict else "0"
+
         qual = qual if qual == "LowQual" else "PASS"
 
         if sv_type == "Deletion":
@@ -98,13 +98,13 @@ def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compres
             alt_allele = ref_allele[0:1] if not no_ref_allele else "<DEL>"
             info = "SVLEN=%d;SVTYPE=DEL;END=%d" % (-svlen, end)
             outfd.write(
-                "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT\t%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt))
+                "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT:ABC:PE:REFCOUNTS\t%s:%s:%s:%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt, abc, pe, refcounts))
         elif sv_type == "Insertion":
             ref_allele = fasta_handle.fetch(chromosome, start - 2, start - 1)
             alt_allele = "<INS>"
             info = "SVLEN=%d;SVTYPE=INS;END=%d" % (svlen, start - 1)
             outfd.write(
-                "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT\t%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt))
+                "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT:ABC:PE:REFCOUNTS\t%s:%s:%s:%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt, abc, pe, refcounts))
 
     fasta_handle.close()
     if output:
