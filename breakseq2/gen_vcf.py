@@ -32,14 +32,17 @@ def line_to_tuple(line):
     info_items = line_items[8].split(";")
     qual = "."
     gt = "./."
+    svlen = 0
     for info_item in info_items:
         key, value = info_item.split(" ")
         if key == "QUAL":
             qual = value
         elif key == "GT":
             gt = value
+        elif key == "SVLEN":
+            svlen = int(value)
 
-    return tuple(line_items[0:3]) + (int(line_items[3]), int(line_items[4])) + (qual, gt)
+    return tuple(line_items[0:3]) + (int(line_items[3]), int(line_items[4])) + (qual, gt, svlen)
 
 
 def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compress=True):
@@ -84,7 +87,7 @@ def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compres
 ##ALT=<ID=CNV,Description=\"Copy number variable region\">
 #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n""" % (reference, contig_str, sample))
     for line_items in lines:
-        chromosome, tool, sv_type, start, end, qual, gt = line_items
+        chromosome, tool, sv_type, start, end, qual, gt, svlen = line_items
         qual = qual if qual == "LowQual" else "PASS"
 
         if sv_type == "Deletion":
@@ -93,13 +96,13 @@ def gff_to_vcf(reference, input_gff, sample, output, no_ref_allele=True, compres
             else:
                 ref_allele = fasta_handle.fetch(chromosome, start - 2, start - 1)
             alt_allele = ref_allele[0:1] if not no_ref_allele else "<DEL>"
-            info = "SVLEN=%d;SVTYPE=DEL;END=%d" % (-(end - start + 1), end)
+            info = "SVLEN=%d;SVTYPE=DEL;END=%d" % (-svlen, end)
             outfd.write(
                 "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT\t%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt))
         elif sv_type == "Insertion":
             ref_allele = fasta_handle.fetch(chromosome, start - 2, start - 1)
             alt_allele = "<INS>"
-            info = "SVTYPE=INS;END=%d" % (start - 1)
+            info = "SVLEN=%d;SVTYPE=INS;END=%d" % (svlen, start - 1)
             outfd.write(
                 "%s\t%d\t.\t%s\t%s\t.\t%s\t%s\tGT\t%s\n" % (chromosome, start - 1, ref_allele, alt_allele, qual, info, gt))
 
