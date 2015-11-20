@@ -17,7 +17,7 @@ def add_options(main_parser):
 
 def get_seq(sv, jn_type, seq, format_version):
     if format_version == "1":
-        return ">%s:%s\n%s" % (sv.id, jn_type, seq)
+        return ">%s:%s\n%s" % (sv.id[:sv.id.rfind(":")], jn_type, seq)
     return ">%s:%s:%s\n%s" % (sv.id, sv.size(), jn_type, seq)
 
 
