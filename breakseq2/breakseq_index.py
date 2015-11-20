@@ -12,7 +12,7 @@ def add_options(main_parser):
     local_parser = main_parser.add_argument_group("Breakpoint library FASTA generation options")
     local_parser.add_argument("--bplib_gff", help="Breakpoint GFF input", required=False)
     local_parser.add_argument("--junction_length", help="Junction length", type=int, default=DEFAULT_JUNCTION_LENGTH)
-    local_parser.add_argument("--format_version", help="Version of breakpoint library format to use", options=breakseq_index.SUPPORTED_FORMAT_VERSIONS, default=breakseq_index.DEFAULT_FORMAT_VERSION) 
+    local_parser.add_argument("--format_version", help="Version of breakpoint library format to use", options=SUPPORTED_FORMAT_VERSIONS, default=DEFAULT_FORMAT_VERSION) 
 
 
 def get_seq(sv, jn_type, seq, format_version):
