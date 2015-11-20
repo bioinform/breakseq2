@@ -22,6 +22,9 @@ def get_seq(sv, jn_type, seq, format_version):
 
 
 def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH, format_version=DEFAULT_FORMAT_VERSION):
+    if not gff or not os.path.isfile(gff):
+        raise Exception("GFF file unspecified or missing")
+
     outfd = open(output, "w") if output else sys.stdout
     insertion_sequence_file = gff.replace(".gff", "") + ".ins";
     if not os.path.isfile(insertion_sequence_file):
