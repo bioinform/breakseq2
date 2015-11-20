@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import argparse
 import sys
 import os
@@ -7,19 +5,26 @@ from biopy.io import Fasta
 from biopy.io import SV
 
 DEFAULT_JUNCTION_LENGTH = 200
-
+SUPPORTED_FORMAT_VERSIONS = ["1", "2"]
+DEFAULT_FORMAT_VERSION = "2"
 
 def add_options(main_parser):
     local_parser = main_parser.add_argument_group("Breakpoint library FASTA generation options")
     local_parser.add_argument("--bplib_gff", help="Breakpoint GFF input", required=False)
     local_parser.add_argument("--junction_length", help="Junction length", type=int, default=DEFAULT_JUNCTION_LENGTH)
+    local_parser.add_argument("--format_version", help="Version of breakpoint library format to use", choices=SUPPORTED_FORMAT_VERSIONS, default=DEFAULT_FORMAT_VERSION) 
 
 
-def get_seq(sv, sv_type, seq):
-    return ">%s:%s:%s\n%s" % (sv.id, sv.size(), sv_type, seq)
+def get_seq(sv, jn_type, seq, format_version):
+    if format_version == "1":
+        return ">%s:%s\n%s" % (sv.id[:sv.id.rfind(":")], jn_type, seq)
+    return ">%s:%s:%s\n%s" % (sv.id, sv.size(), jn_type, seq)
 
 
-def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH):
+def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH, format_version=DEFAULT_FORMAT_VERSION):
+    if not gff or not os.path.isfile(gff):
+        raise Exception("GFF file unspecified or missing")
+
     outfd = open(output, "w") if output else sys.stdout
     insertion_sequence_file = gff.replace(".gff", "") + ".ins";
     if not os.path.isfile(insertion_sequence_file):
@@ -29,19 +34,8 @@ def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENG
         if sv.is_insertion():
             if flanks[0] is None or flanks[1] is None:
                 raise Exception("No inserted sequence found for insertion %s" % sv.id)
-            outfd.write("%s\n" % (get_seq(sv, "A", flanks[0])))
-            outfd.write("%s\n" % (get_seq(sv, "B", flanks[1])))
+            outfd.write("%s\n" % (get_seq(sv, "A", flanks[0], format_version)))
+            outfd.write("%s\n" % (get_seq(sv, "B", flanks[1], format_version)))
         if sv.is_deletion():
-            outfd.write("%s\n" % (get_seq(sv, "C", flanks[2])))
+            outfd.write("%s\n" % (get_seq(sv, "C", flanks[2], format_version)))
     outfd.close()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate breakpoint library FASTA from breakpoint GFF",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    add_options(parser)
-    parser.add_argument("--reference", help="Reference FASTA", required=True)
-    parser.add_argument("--output", help="Output FASTA to generate. Leave unspecified for stdout")
-    args = parser.parse_args()
-
-    generate_bplib(args.bplib_gff, args.reference, args.output, args.junction_length)
-
