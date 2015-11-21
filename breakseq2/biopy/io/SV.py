@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os
+import sys, os, logging
 import Fasta
 import GFF
 
@@ -124,8 +124,13 @@ class Call(GFF.Entry):
 
 
 def parse(gff_file, base=None):
+	logger = logging.getLogger(parse.__name__)
+
 	ins_file=gff_file.replace(".gff","")+".ins"
 	insertions=None if not os.path.exists(ins_file) else Fasta.parse(ins_file, todict=True)
+	if insertions is None:
+		logger.warn("Insertion sequence file %s missing" % ins_file)
+
 	calls=[]
 	for entry in open(gff_file, "r"):
 		if entry.startswith("#"): continue
@@ -137,7 +142,7 @@ def parse(gff_file, base=None):
 				del call.attributes["Iseq"]
 			calls.append(call)
 		except:
-			print >> sys.stderr, "Unable to parse line: %s" % entry
+			logger.error("Unable to parse line: %s" % entry)
 			raise
 	return calls
 
