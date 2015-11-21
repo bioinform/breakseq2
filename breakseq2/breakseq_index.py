@@ -22,7 +22,7 @@ def get_seq(sv, jn_type, seq, format_version):
     return ">%s:%s:%s\n%s" % (sv.id, sv.size(), jn_type, seq)
 
 
-def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH, format_version=DEFAULT_FORMAT_VERSION):
+def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENGTH, format_version=DEFAULT_FORMAT_VERSION, chromosomes=[]):
     logger = logging.getLogger(generate_bplib.__name__)
 
     if not gff or not os.path.isfile(gff):
@@ -37,6 +37,9 @@ def generate_bplib(gff, reference, output, junction_length=DEFAULT_JUNCTION_LENG
         logger.error("Insertion sequence file %s not found. Insertions will be skipped" % ins_file)
 
     for sv in SV.parse(gff, Fasta.Seqs(reference, junction_length)):
+        if chromosomes and sv.name not in chromosomes:
+            continue
+ 
         if sv.is_insertion() and ins_file_absent:
             logger.warn("Omitting entry %s due to missing insertion sequence file" % sv.id)
             continue

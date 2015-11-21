@@ -11,6 +11,7 @@ if __name__ == "__main__":
     breakseq_index.add_options(parser)
     parser.add_argument("--reference", help="Reference FASTA", required=True)
     parser.add_argument("--output", help="Output FASTA to generate. Leave unspecified for stdout")
+    parser.add_argument("--chromosomes", nargs="+", help="List of chromosomes to process", default=[])
     parser.add_argument('--version', action='version', version='%(prog)s ' + _version.__version__)
     parser.add_argument('--log', help="Log level", default="INFO")
 
@@ -26,4 +27,4 @@ if __name__ == "__main__":
     logger = logging.getLogger(__file__)
     logger.info("Command-line: " + " ".join(sys.argv))
     
-    breakseq_index.generate_bplib(args.bplib_gff, args.reference, args.output, args.junction_length, args.format_version)
+    breakseq_index.generate_bplib(args.bplib_gff, args.reference, args.output, args.junction_length, args.format_version, args.chromosomes)
